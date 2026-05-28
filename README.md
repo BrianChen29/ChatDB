@@ -1,126 +1,285 @@
-# ChatDB
+# ChatDB — Natural Language Interface for SQL and NoSQL Databases
 
-Final project for USC DSCI551
+ChatDB is an interactive database query assistant that helps users explore SQL and NoSQL databases through natural language inputs.
 
-## Introduction
+The system allows users to upload datasets, generate example queries, translate simple natural language requests into database queries, and execute them against MySQL or MongoDB backends. It was developed as a database systems project with a focus on query generation, database integration, and user-friendly data exploration.
 
-ChatDB is an interactive application designed to teach users how to query database systems (both SQL and NoSQL) using natural language inputs. It will act as a learning tool that provides example queries, allows users to run queries, and returns results from databases like MySQL (for SQL) and MongoDB (for NoSQL). The system can handle natural language inputs, generate SQL or NoSQL queries based on predefined patterns, and execute them, displaying results to the user. Users can also upload their datasets, which the system will store in databases and make available for querying. The project will integrate NLP capabilities with database systems to allow easy query generation and execution.
+---
 
-## Get Started
+## Overview
 
-### Environment Setup
+Traditional database systems require users to understand query languages such as SQL or MongoDB aggregation syntax. ChatDB reduces this barrier by providing a natural-language-driven interface for querying structured and semi-structured data.
 
-Requirements for Python Environment:
+The application supports two major database workflows:
+
+- **SQL Workflow:** Dataset upload, MySQL database setup, sample SQL query generation, and natural language query matching.
+- **NoSQL Workflow:** MongoDB database / collection management, JSON dataset upload, natural language intent parsing, and aggregation pipeline construction.
+
+This project demonstrates how natural language processing techniques can be integrated with database systems to improve data accessibility.
+
+---
+
+## Key Features
+
+- Natural language interface for SQL and NoSQL query generation
+- MySQL integration for relational datasets
+- MongoDB integration for document-based datasets
+- Dataset upload support for CSV and JSON files
+- Template-based example query generation
+- Intent and keyword matching for query interpretation
+- MongoDB aggregation pipeline construction
+- Interactive command-line workflow
+- Modular architecture separating SQL, NoSQL, NLP, and utility components
+
+---
+
+## Tech Stack
+
+- **Language:** Python
+- **Databases:** MySQL, MongoDB
+- **Libraries:** PyMySQL, PyMongo, Pandas, NLTK, BSON, Requests
+- **Concepts:** Natural language processing, query generation, database systems, SQL, NoSQL, aggregation pipelines
+
+---
+
+## System Architecture
+
+```text
+User Natural Language Input
+        |
+        v
+NLP Processing / Intent Matching
+        |
+        v
+Query Generation Layer
+        |
+        +--------------------+
+        |                    |
+        v                    v
+   SQL Workflow          NoSQL Workflow
+   MySQL                 MongoDB
+        |                    |
+        v                    v
+Query Execution        Aggregation / Query Execution
+        |
+        v
+Formatted Results
+
+---
+
+## Project Structure
+
+```text
+ChatDB/
+├── main.py                  # Entry point and application workflow
+├── set_up_db.py             # MySQL setup, connection, and dataset upload
+├── sample_queries.py        # SQL sample query generation
+├── nlp_matching.py          # SQL-side natural language matching
+├── database_layer.py        # MongoDB database-level interface
+├── collection_layer.py      # MongoDB collection-level interface
+├── operation_layer.py       # NoSQL operation workflow and user interaction
+├── nosql_functions.py       # MongoDB utility operations
+├── keywords.py              # MongoDB aggregation keyword / stage handling
+├── nlp_processor.py         # NoSQL natural language processing logic
+├── example_generator.py     # NoSQL example query generation
+├── utils.py                 # Utility functions for type and column analysis
+└── datasets/                # Sample CSV and JSON datasets
 ```
-re
-pymysql
-pymongo
-pandas
-datetime
-nltk
-json
-bson
-requests
+
+---
+
+## SQL Workflow
+
+The SQL component supports relational data exploration through MySQL.
+
+Main capabilities:
+
+* Connect to a MySQL server
+* Upload CSV datasets into SQL tables
+* Generate sample SQL queries
+* Match natural language input to predefined SQL query patterns
+* Execute SQL queries and return results
+
+Example use cases:
+
+* Query sales records from a coffee shop dataset
+* Explore product or quality-related CSV datasets
+* Generate simple `SELECT`, `WHERE`, and aggregation-style queries
+
+---
+
+## NoSQL Workflow
+
+The NoSQL component supports document-based data exploration through MongoDB.
+
+Main capabilities:
+
+* Create and select MongoDB databases
+* Create and select collections
+* Upload JSON datasets
+* Generate example MongoDB queries
+* Parse natural language input into query intent
+* Build MongoDB query or aggregation pipelines
+* Execute queries and return results
+
+Supported MongoDB-style operations include:
+
+* `find`
+* `match`
+* `group`
+* `sort`
+* `lookup`
+* `project`
+
+---
+
+## Datasets
+
+The project includes sample datasets for both SQL and NoSQL workflows.
+
+### SQL / CSV datasets
+
+* `coffee_shop_sale.csv`
+* `grape_quality.csv`
+* `banana_quality.csv`
+
+### NoSQL / JSON datasets
+
+Retail order dataset:
+
+* `products.json`
+* `users.json`
+* `orders.json`
+* `reviews.json`
+* `categories.json`
+
+Additional datasets:
+
+* `countries-table.json`
+* `property_level.json`
+
+---
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/BrianChen29/ChatDB.git
+cd ChatDB
 ```
 
-### MySQL
+---
 
-#### Set up MySQL server
+### 2. Install dependencies
 
-Instalation: <https://dev.mysql.com/doc/mysql-getting-started/en/>
+```bash
+pip install pymysql pymongo pandas nltk bson requests
+```
 
-* Run MySQL server on Linux
+Depending on your environment, you may also need:
 
-    ```$ sudo service mysql start```
+```bash
+pip install mysql-connector-python
+```
 
-* Stop MySQL server on Linux
+---
 
-    ```$ sudo service mysql stop```
+### 3. Start MySQL
 
-Note: Please follow the link above to access the instruction for different platforms usage.
+On Linux:
 
-### NoSQL
+```bash
+sudo service mysql start
+```
 
-#### Set up NoSQL-MongoDB server
+On other platforms, follow the official MySQL setup guide.
 
-Installation
+---
 
-* On Ubuntu:
+### 4. Start MongoDB
 
-    <https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/>
+On Ubuntu:
 
-* On MacOS:
+```bash
+sudo service mongod start
+```
 
-    <https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/>
+On macOS with Homebrew:
 
-* On Windows:
+```bash
+brew services start mongodb-community
+```
 
-    <https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/>
+---
 
-Note: Please follow the link above to access the instruction for different platforms usage.
+### 5. Run ChatDB
 
-#### Run MongoDB server
+```bash
+python main.py
+```
 
-Start the mongoDB service
+or
 
-* Ubuntu
+```bash
+python3 main.py
+```
 
-    ```$ sudo service mongod start```
+---
 
-* MacOS (if using homebrew)
-  
-    ```$ brew service mongod start```
+## Example User Flow
 
-## Get Started with ChatDB
+```text
+1. Start the ChatDB application.
+2. Choose SQL or NoSQL mode.
+3. Upload or select a dataset.
+4. Enter a natural language query.
+5. ChatDB matches the intent and generates a database query.
+6. The query is executed against MySQL or MongoDB.
+7. Results are displayed to the user.
+```
 
-### Run ChatDB:
+Example natural language requests:
 
-on terminal input:
+```text
+Show me all coffee sales in January.
+Find products with high review ratings.
+Group orders by customer.
+Sort countries by population.
+Find properties above a certain price level.
+```
 
-```$ <python/python3> main.py```
+---
 
-<br>
+## What I Learned
 
-### File Structure
+Through this project, I gained hands-on experience in:
 
-chatdb/
+* Designing a modular database application
+* Connecting Python applications with MySQL and MongoDB
+* Translating natural language patterns into structured database operations
+* Building query-generation logic for both SQL and NoSQL systems
+* Working with CSV and JSON datasets
+* Structuring a command-line workflow for interactive data exploration
 
-* main.py: Entry point of the application, main function, initial settings and handling the work flow of the chatDB
+---
 
-SQL part/
+## Future Improvements
 
-* set_up_db.py: Database connection, set up database, user upload function
-* sample_queries.py: Sample queries generation
-* nlp_matching.py: Natural language matching
+Potential improvements include:
 
-NoSQL part/
+* Add a web-based interface with Streamlit or FastAPI
+* Improve natural language understanding with LLM-based query generation
+* Add schema-aware query validation
+* Support more complex SQL joins and nested MongoDB queries
+* Add query explanation to help users learn SQL and NoSQL syntax
+* Add automated tests for query generation and database operations
+* Containerize the application with Docker
 
-* database_layer.py: NoSQL database layer interface and user input handling
-* collection_layer.py: NoSQL collection layer interface and user input handling
-* operation_layer.py: NoSQL operation layer interface and user input handling, this layer also calls other actions, such as example generation and nlp process.
-* nosql_functions.py: Simple nosql query functions, including create database, create collection, upload, find, and etc..
-* keywords.py: MongoDB-specific query stages (match, group, sort, lookup, project) and build aggregatation pipeline
-* utils.py: utility functions (type detection, column type classification, etc.)
-* example_generator.py: Generates example queries with templates
-* nlp_processor.py: Natural language process logic for parsing user input and intent-pattern matching  
+---
 
-<br>
+## Repository Context
 
-### Datasets Discription
+This project was originally developed as a USC database systems final project and later refined as part of my AI / data systems portfolio.
 
-#### CSV file for SQL
-
-* coffee_shop_sale.csv: data of coffee sales information
-* grape_qulity.csv: data of grape quality identifier information
-* banana_qulity.csv: data of banana quality identifier information
-
-#### JSON file for NoSQL
-
-* Orders folder: data of orders and other information of a retail store
-  * products.json
-  * users.json
-  * orders.json
-  * reviews.json
-  * categories.json
-* countries-table.json: data of different countries information
-* property_level.json: data of property information
+Its main focus is on combining natural language processing, database systems, and query-generation workflows to make structured data more accessible.
