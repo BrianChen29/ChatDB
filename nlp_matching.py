@@ -1,17 +1,10 @@
 import re
 import sys
-import pymysql
-import pandas as pd
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
 from sample_queries import connect_to_mysql, execute_query
 
-#stemmer = PorterStemmer()
 
 def preprocess_query(nl_query):
-    tokens = word_tokenize(nl_query.lower())
-    #stemmed_tokens = [stemmer.stem(token) for token in tokens]
-    return " ".join(tokens)
+    return re.sub(r"\s+", " ", nl_query.lower()).strip()
 
 def map_natural_language_to_query(nl_query, table_name, column_info):
     """
@@ -30,7 +23,7 @@ def map_natural_language_to_query(nl_query, table_name, column_info):
 
     # Patterns for HAVING -> Modified
     if "having" in nl_query:
-        match = re.search(r"having total (\w+) (greater|less) than (\d+) group by (\w+)", nl_query)
+        match = re.search(r"having total (\w+) (greater|less) than (\d+(?:\.\d+)?) group by (\w+)", nl_query)
         if match:
             having_col, condition, value, group_col = match.groups()
             operator = ">" if condition == "greater" else "<"
@@ -43,7 +36,7 @@ def map_natural_language_to_query(nl_query, table_name, column_info):
 
     # Patterns for GROUP BY and Aggregation
     if "group by" in nl_query or  "total" in nl_query or "average" in nl_query or "count" in nl_query:
-        match = re.search(r"(total|average|count) (\w+)? (by|group by) (\w+)", nl_query)
+        match = re.search(r"(total|average) (\w+) (by|group by) (\w+)", nl_query)
         if match:
             agg_type, agg_col, _, group_col = match.groups()
             if group_col in column_info:
@@ -57,16 +50,20 @@ def map_natural_language_to_query(nl_query, table_name, column_info):
                         f"SELECT {group_col}, AVG({agg_col}) AS average_{agg_col} "
                         f"FROM {table_name} GROUP BY {group_col}"
                     )
-                elif agg_type == "count":
-                    return (
-                        f"SELECT {group_col}, COUNT(*) AS count_rows "
-                        f"FROM {table_name} GROUP BY {group_col}"
-                    )
+
+        match_count = re.search(r"count(?: \w+)? (by|group by) (\w+)", nl_query)
+        if match_count:
+            _, group_col = match_count.groups()
+            if group_col in column_info:
+                return (
+                    f"SELECT {group_col}, COUNT(*) AS count_rows "
+                    f"FROM {table_name} GROUP BY {group_col}"
+                )
     
     # Patterns for WHERE (Numeric and Categorical)
     elif "filter" in nl_query or "where" in nl_query:
         # Numeric WHERE
-        match_numeric = re.search(r"(filter|where) (\w+) (greater|less) than (\d+)", nl_query)
+        match_numeric = re.search(r"(filter|where) (\w+) (greater|less) than (\d+(?:\.\d+)?)", nl_query)
         if match_numeric:
             _, filter_col, condition, value = match_numeric.groups()
             operator = ">" if condition == "greater" else "<"
@@ -80,7 +77,7 @@ def map_natural_language_to_query(nl_query, table_name, column_info):
             _, filter_col, value = match_categorical.groups()
             if filter_col in column_info:
                 reordered_columns = [filter_col] + [col for col in all_columns if col != filter_col]
-                value = value.strip("'")  # Ensure value is properly quoted
+                value = value.strip("'").replace("'", "''")
                 return f"SELECT {', '.join(reordered_columns)} FROM {table_name} WHERE {filter_col} = '{value}'"
     
     # Patterns for ORDER BY

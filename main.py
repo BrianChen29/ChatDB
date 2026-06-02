@@ -1,5 +1,4 @@
 import os
-import sys
 
 # Sql
 from set_up_db import check_database_exists, connect_mysql_no_db, create_database, upload_dataset_to_mysql
@@ -11,8 +10,6 @@ from pymongo import MongoClient
 from database_layer import DatabaseLayer
 from collection_layer import CollectionLayer
 from operation_layer import OperationLayer
-import nosql_functions as nosql_func
-from example_generator import ExampleGenerator
 
 
 
@@ -44,7 +41,7 @@ def main():
     print("Welcome to ChatDB!")
 
     # init NoSQL setting
-    client_url = 'mongodb://localhost:27017/'  # mongoDB url
+    client_url = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
     client = MongoClient(client_url)
     database = None
     collection = None
@@ -62,6 +59,11 @@ def main():
             # Connect to MySQL without selecting a database, return show databases result
             
             connect_no_db = connect_mysql_no_db()
+            if connect_no_db is None:
+                print("Unable to connect to MySQL. Check your MySQL server and environment settings.\n")
+                current_state = 'MAIN_MENU'
+                continue
+
             print("\n--- SQL is selected ---")
             print(f"Available databases:")
             db_list = execute_query(connect_no_db,f"SHOW DATABASES", as_list=True)
@@ -135,7 +137,7 @@ def main():
         elif current_state == 'SQL_OPERATION':
             """
             Input:
-                user_input: prevent ERROR TODO
+                user_input: SQL example request or natural language query
             Return:
                 1. example of sql query
                 2. example of one of language constructs. e.g. group by, where, order by, aggregation

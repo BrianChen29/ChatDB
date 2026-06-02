@@ -1,5 +1,3 @@
-from datetime import datetime
-
 # Not used
 def detect_column_type(values):
     if all(isinstance(v, (int, float)) for v in values if v is not None):

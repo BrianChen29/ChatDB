@@ -1,5 +1,3 @@
-from pymongo import MongoClient
-
 # Where/$match
 def match_stage(conditions):  # input: {condition}
     """Creates a $match stage for filtering documents."""

@@ -1,13 +1,12 @@
 import json
+import os
 from datetime import datetime
 
 from bson import ObjectId
-import pandas as pd
 import pymongo
-import requests
 
 
-client_url = 'mongodb://localhost:27017/'
+client_url = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
 client = pymongo.MongoClient(client_url)
 
 # helper function

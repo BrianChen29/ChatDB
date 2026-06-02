@@ -55,7 +55,7 @@ class NLPProcessor:
         }
         
         for intent, pattern in self.patterns.items():
-            match = re.search(pattern, user_input)
+            match = re.search(pattern, user_input, flags=re.IGNORECASE)
             if match:
                 params = match.groupdict()
                 

@@ -1,16 +1,18 @@
 import nosql_functions as nosql_func
-from nlp_processor import NLPProcessor
 
 class CollectionLayer:
     def __init__(self, database):
         self.database = database
         
-    def list_colelctions(self):
+    def list_collections(self):
         return self.database.list_collection_names()
+
+    def list_colelctions(self):
+        return self.list_collections()
     
     def start(self):
         while True:
-            col_list = "\n".join(self.list_colelctions())
+            col_list = "\n".join(self.list_collections())
             print(
             f"\n--- Database: {self.database.name} is selected ---\n"
             f"Available collections:\n{col_list}\n"
@@ -25,7 +27,7 @@ class CollectionLayer:
             if col_name == 'mainmenu':
                 return 'MAIN_MENU'
             
-            if col_name in self.list_colelctions():
+            if col_name in self.list_collections():
                 return col_name
             
             if col_name == 'upload json':
@@ -39,7 +41,7 @@ class CollectionLayer:
             if col_name.startswith('create collection '):
                 col_name = col_name.split()[2]
                 collection = nosql_func.set_collection(self.database, col_name)
-                print(f"database: {col_name} created!\n")
+                print(f"collection: {col_name} created!\n")
                 continue
             
             print("Invalid collection. Please try again.")

@@ -1,6 +1,7 @@
 import sys
 import pymysql
 import pandas as pd
+from set_up_db import get_mysql_connection_config
 
 # Connect to MySQL
 def connect_to_mysql(database):
@@ -8,11 +9,7 @@ def connect_to_mysql(database):
     Connects to the specified MySQL database.
     """
     try:
-        connection = pymysql.connect(
-        host='localhost',
-        user='root',
-        password='Dsci-551',
-        database=database)
+        connection = pymysql.connect(**get_mysql_connection_config(database=database))
         print(f"Connected to MySQL, Database Name: {database}")
         return connection
     except pymysql.MySQLError as err:
@@ -95,9 +92,10 @@ def generate_sql_examples(connection, table_name):
     # Categorical WHERE
     for cat_col in categorical_columns[:1]:  # Limit to 1 example
         valid_value = examples[cat_col][0] if examples[cat_col] else 'example_value'
+        sql_value = str(valid_value).replace("'", "''")
         reordered_columns = [cat_col] + [col for col in all_columns if col != cat_col]
         description = f"Filter {table_name} where {cat_col} equals '{valid_value}'"
-        query = f"SELECT {', '.join(reordered_columns)} FROM {table_name} WHERE {cat_col} = '{valid_value}'"
+        query = f"SELECT {', '.join(reordered_columns)} FROM {table_name} WHERE {cat_col} = '{sql_value}'"
         queries['WHERE'].append((description, query, execute_query(connection, query)))
     
     # HAVING queries

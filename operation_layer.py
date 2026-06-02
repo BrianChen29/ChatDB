@@ -1,7 +1,8 @@
-import nosql_functions as nosql_func
+import ast
+
 from nlp_processor import NLPProcessor
 from example_generator import ExampleGenerator
-from keywords import match_stage, group_stage, sort_stage, build_pipeline
+from keywords import build_pipeline
 
 class OperationLayer:
     def __init__(self, collection):
@@ -46,7 +47,11 @@ class OperationLayer:
             
     def execute_sort(self, field, order, limit=None):
         try:
-            order_flag = 1 if order == "ascending" else -1
+            if isinstance(order, str):
+                order_flag = 1 if order.lower() == "ascending" else -1
+            else:
+                order_flag = 1 if order == 1 else -1
+
             if limit is None:
                 results = list(self.collection.find().sort(field, order_flag))
             else:
@@ -63,13 +68,13 @@ class OperationLayer:
     
     def execute_query(self, query_str):
         if ".find(" in query_str:
-            query = eval(query_str.split(".find(", 1)[1].rstrip(")"))
+            query = ast.literal_eval(query_str.split(".find(", 1)[1].rsplit(")", 1)[0])
             return list(self.collection.find(query).limit(3))  # limit results to 3
         elif ".aggregate(" in query_str:
-            pipeline = eval(query_str.split(".aggregate(", 1)[1].rstrip(")"))
+            pipeline = ast.literal_eval(query_str.split(".aggregate(", 1)[1].rsplit(")", 1)[0])
             return list(self.collection.aggregate(pipeline))[:3]  # limit results to 3
         elif ".distinct(" in query_str:
-            query = eval(query_str.split(".distinct(", 1)[1].rstrip(")"))
+            query = ast.literal_eval(query_str.split(".distinct(", 1)[1].rsplit(")", 1)[0])
             return list(self.collection.distinct(query))
         else:
             print("Unsupported query format. ")
@@ -144,7 +149,7 @@ class OperationLayer:
             if user_input == 'exit':
                 return 'EXIT'
             
-            if user_input == 'maninmenu':
+            if user_input == 'mainmenu':
                 return 'MAIN_MENU'
             
                 

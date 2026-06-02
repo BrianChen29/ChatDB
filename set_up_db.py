@@ -1,16 +1,31 @@
 import pymysql
 import pandas as pd
 from datetime import datetime
+import os
 import sys
+
+
+def get_mysql_connection_config(database=None):
+    config = {
+        "host": os.getenv("MYSQL_HOST", "localhost"),
+        "user": os.getenv("MYSQL_USER", "root"),
+        "password": os.getenv("MYSQL_PASSWORD", ""),
+    }
+
+    mysql_port = os.getenv("MYSQL_PORT")
+    if mysql_port:
+        config["port"] = int(mysql_port)
+
+    if database:
+        config["database"] = database
+
+    return config
+
 
 # Function to connect to MySQL without specifying a database
 def connect_mysql_no_db():
     try:
-        connection = pymysql.connect(
-            host='localhost',  # Use your EC2 instance's public/private IP or RDS endpoint
-            user='root',  # MySQL username
-            password='Dsci-551'  # MySQL password
-        )
+        connection = pymysql.connect(**get_mysql_connection_config())
         print("Connected to MySQL (no specific database selected)")
         return connection
     except pymysql.MySQLError as err:
@@ -41,12 +56,7 @@ def create_database(connection, db_name):
 # Function to connect to a specific database in MySQL
 def connect_mysql_with_db(db_name):
     try:
-        connection = pymysql.connect(
-            host='localhost',  # Use the public or private IP of your EC2 instance
-            user='root',  # MySQL username
-            password='Dsci-551',  # MySQL password
-            database=db_name  # Now connect to the specific database
-        )
+        connection = pymysql.connect(**get_mysql_connection_config(database=db_name))
         print(f"Connected to MySQL database: {db_name}")
         return connection
     except pymysql.MySQLError as err:
@@ -199,7 +209,7 @@ if __name__ == "__main__":
     else:
         DB_NAME = 'coffee_shop'
         TABLE_NAME = 'coffee_sales'
-        CSV_PATH = 'coffee_shop_sales.csv'
+        CSV_PATH = os.path.join('datasets', 'CSV for SQL', 'coffee_shop_sales.csv')
 
     # Connect to MySQL without selecting a database
     mysql_conn = connect_mysql_no_db()

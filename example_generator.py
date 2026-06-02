@@ -1,5 +1,5 @@
 from utils import analyze_collection, get_column_info_and_examples
-from keywords import match_stage, group_stage, lookup_stage, sort_stage, project_stage
+from keywords import match_stage, group_stage, sort_stage
 
 class ExampleGenerator:
     def __init__(self, collection_name):
